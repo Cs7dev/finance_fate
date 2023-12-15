@@ -12,17 +12,17 @@ class FinanceFate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Stock App',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        useMaterial3: true,
-        primarySwatch: Colors.blue,
+    return ChangeNotifierProvider(
+      create: (context) => CompanyList(),
+      builder: (context, child) => MaterialApp(
+        title: 'Stock App',
+        theme: ThemeData(
+          brightness: Brightness.dark,
+          useMaterial3: true,
+          primarySwatch: Colors.blue,
+        ),
+        home: const HomePage(),
       ),
-      home: ChangeNotifierProvider(
-        create: (context) => CompanyList(),
-        child: const HomePage(),
-      ), // Set the initial page to Login Page
     );
   }
 }

@@ -23,7 +23,7 @@ class _StockInputDialogState extends State<StockInputDialog> {
       SnackBar(
         duration: const Duration(seconds: 3),
         content: Text(
-          'Searching company data: ${_companyNameController.text}',
+          'Searching ticker: ${_companyNameController.text}',
         ),
       ),
     );

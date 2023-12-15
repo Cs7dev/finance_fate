@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => PredictionPage(
-                        companyName: companies.companyList[index].ticker),
+                        companyTicker: companies.companyList[index].ticker),
                   ),
                 ),
               ),

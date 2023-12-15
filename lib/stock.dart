@@ -30,7 +30,7 @@ class StockData {
 
     List<CompanyData> stockData = [];
 
-    for (var element in companyData.candlesData) {
+    for (var element in companyData.candlesData.reversed) {
       CompanyData data = CompanyData(
         date: element.date,
         adjClose: element.adjClose,
