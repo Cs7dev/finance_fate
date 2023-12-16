@@ -1,5 +1,5 @@
 import 'package:finance_fate/provider/company_provider.dart';
-import 'package:finance_fate/pages/home_page.dart';
+import 'package:finance_fate/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

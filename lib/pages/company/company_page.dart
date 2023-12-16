@@ -1,4 +1,4 @@
-import 'package:finance_fate/actual_data_tabview.dart';
+import 'package:finance_fate/pages/company/widgets/actual_data_tabview.dart';
 import 'package:finance_fate/pod/company.dart';
 import 'package:finance_fate/provider/company_provider.dart';
 import 'package:flutter/material.dart';

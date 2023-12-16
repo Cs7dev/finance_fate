@@ -1,5 +1,9 @@
-import 'package:animations/animations.dart';
+import 'package:finance_fate/pages/company/company_page.dart';
+import 'package:finance_fate/pod/company.dart';
+import 'package:finance_fate/provider/company_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class ReorderableCompanyListView extends StatefulWidget {
   const ReorderableCompanyListView({
@@ -34,45 +38,40 @@ class _ReorderableCompanyListViewState extends State<ReorderableCompanyListView>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserListModel>(
-      builder: (context, userListModel, child) => ReorderableListView(
+    return Consumer<CompanyList>(
+      builder: (context, companyList, child) => ReorderableListView(
         proxyDecorator: (child, index, animation) => ScaleTransition(
-          scale: Tween<double>(begin: 1, end: 1.025).animate(
+          scale: Tween<double>(begin: 1, end: 1.03).animate(
             CurvedAnimation(
               parent: _controller,
               curve: Curves.linear,
             ),
           ),
-          child: UserCard(
-            userData: userListModel.userAtIndex(index),
+          child: Material(
+            child: ListTile(
+              title: Text(companyList.companyList[index].ticker),
+            ),
           ),
         ),
         onReorder: (oldIndex, newIndex) async {
           // setState(() {
           // These two lines are workarounds for ReorderableListView problems
           // Source: https://stackoverflow.com/questions/54162721/onreorder-arguments-in-flutter-reorderablelistview?newreg=398dc3a491ee40fbad1b76ab1e303977
-          if (newIndex > userListModel.length()) {
-            newIndex = userListModel.length();
+          if (newIndex > companyList.length()) {
+            newIndex = companyList.length();
           }
           if (oldIndex < newIndex) newIndex--;
-          UserData user = userListModel.userAtIndex(oldIndex);
+          Company company = companyList.companyAtIndex(oldIndex);
           // Remove from the application list
-          userListModel.deleteUser(user);
-          userListModel.insertUser(newIndex, user);
+          companyList.deleteUser(company);
+          companyList.insertUser(newIndex, company);
           // });
-          userListModel.refreshListOrder();
-          await userListModel.syncDatabase();
         },
         children: [
-          for (int index = 0; index < userListModel.length(); ++index)
-            OpenContainer(
+          for (int index = 0; index < companyList.length(); ++index)
+            DismissibleListTile(
               key: UniqueKey(),
-              openBuilder: (context, action) => UserView(
-                userData: userListModel.userAtIndex(index),
-              ),
-              closedBuilder: (context, action) => DismissibleListTile(
-                userData: userListModel.userAtIndex(index),
-              ),
+              company: companyList.companyAtIndex(index),
             ),
         ],
       ),
@@ -83,47 +82,39 @@ class _ReorderableCompanyListViewState extends State<ReorderableCompanyListView>
 class DismissibleListTile extends StatelessWidget {
   const DismissibleListTile({
     super.key,
-    required this.userData,
+    required this.company,
   });
 
-  final UserData userData;
+  final Company company;
 
   @override
   Widget build(BuildContext context) {
-    bool removed = false;
-
-    return Consumer<UserListModel>(
-      builder: (context, userListModel, child) => Dismissible(
+    return Consumer<CompanyList>(
+      builder: (context, companyList, child) => Dismissible(
         background: const DismissableBackground(
           alignment: AlignmentDirectional.centerStart,
         ),
         secondaryBackground: const DismissableBackground(
           alignment: AlignmentDirectional.centerEnd,
         ),
-        onUpdate: (details) {
+        onUpdate: (details) async {
           if (!details.previousReached && details.reached) {
             HapticFeedback.lightImpact();
           }
         },
         dismissThresholds: const {DismissDirection.horizontal: 0.45},
         onDismissed: (DismissDirection direction) async {
-          userListModel.deleteUser(userData);
-          removed = true;
-          int index = userData.listOrder!;
+          int index = companyList.indexOfCompany(company.ticker);
+          companyList.deleteUser(company);
           if (context.mounted) {
-            // Cannot add both, flexibility to insert back at same index
-            // and option to stack undo users due to indexing conflict
-            // e.g. Delete user at index 5 in a list of size 6 and then delete 2 more users
-            // Since list size is now smaller than initial index, exception is thrown
-
             SnackBar undoDeleteSnack = SnackBar(
               duration: const Duration(seconds: 6),
               content: Text.rich(
                 TextSpan(
-                  text: 'User ',
+                  text: 'Company ',
                   children: [
                     TextSpan(
-                      text: userData.nickname ?? userData.username,
+                      text: company.ticker,
                     ),
                     const TextSpan(text: ' removed from list'),
                   ],
@@ -132,8 +123,7 @@ class DismissibleListTile extends StatelessWidget {
               action: SnackBarAction(
                 label: 'Undo?',
                 onPressed: () {
-                  userListModel.insertUser(index, userData);
-                  removed = false;
+                  companyList.insertUser(index, company);
                 },
               ),
             );
@@ -144,15 +134,20 @@ class DismissibleListTile extends StatelessWidget {
 
             await sfc.closed;
           }
-
-          if (removed) {
-            UserDatabase.delete(userData);
-            userListModel.refreshListOrder();
-            await userListModel.syncDatabase();
-          }
         },
         key: UniqueKey(),
-        child: UserCard(userData: userData),
+        child: Material(
+          child: ListTile(
+            title: Text(company.ticker),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PredictionPage(companyTicker: company.ticker),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -169,9 +164,7 @@ class DismissableBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).brightness == Brightness.dark
-          ? Colors.black
-          : Colors.white,
+      color: Colors.grey,
       padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
       alignment: alignment,
       child: const Icon(Icons.delete),

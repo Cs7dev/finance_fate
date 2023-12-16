@@ -1,4 +1,4 @@
-import 'package:finance_fate/company_data_tile.dart';
+import 'package:finance_fate/pages/home/widgets/company_data_tile.dart';
 import 'package:finance_fate/pod/company.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';

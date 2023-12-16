@@ -1,7 +1,7 @@
 import 'package:finance_fate/pages/stock_input_dialog.dart';
-import 'package:finance_fate/pages/prediction.dart';
 import 'package:finance_fate/pod/company.dart';
 import 'package:finance_fate/provider/company_provider.dart';
+import 'package:finance_fate/reorderable_list_view.dart';
 import 'package:finance_fate/stock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: Consumer<CompanyList>(
-        builder: (context, companies, child) => companies.isEmpty()
+        builder: (context, companyList, child) => companyList.isEmpty()
             ? LayoutBuilder(
                 builder: (context, constraints) => Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -69,7 +69,9 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(height: 40, width: 40),
                     const Column(
                       children: [
-                        Center(child: Text('No companies added')),
+                        Center(
+                          child: Text('No companies added'),
+                        ),
                         Center(
                           child: Text('Click on "Add company" to get started'),
                         )
@@ -78,40 +80,8 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               )
-            : SingleChildScrollView(
-                child: Column(
-                  children: List.generate(
-                    companies.length(),
-                    (index) => ListTile(
-                      title: Text(companies.companyList[index].ticker),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PredictionPage(
-                              companyTicker:
-                                  companies.companyList[index].ticker),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            : const ReorderableCompanyListView(),
       ),
     );
   }
-
-  // selectCsvFile() async {
-  //   FilePickerResult? marketValueFilePath = await FilePicker.platform.pickFiles(
-  //     allowMultiple: false,
-  //     allowedExtensions: ['csv'],
-  //     type: FileType.custom,
-  //   );
-
-  //   if (marketValueFilePath == null) {
-  //     return;
-  //   }
-
-  // File marketValueFile = File(marketValueFilePath.files.first.path!);
-  // print(await markveValueFile.readAsLines());
-  // }
 }
