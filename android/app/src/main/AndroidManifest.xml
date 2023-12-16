@@ -4,7 +4,7 @@
    <application
         android:label="Finance Fate"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/finance_fate_goldmulti_black">
         <activity
             android:name=".MainActivity"
             android:exported="true"
