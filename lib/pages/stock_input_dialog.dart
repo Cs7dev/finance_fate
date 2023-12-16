@@ -10,7 +10,7 @@ class StockInputDialog extends StatefulWidget {
 }
 
 class _StockInputDialogState extends State<StockInputDialog> {
-  final _companyNameController = TextEditingController();
+  final _companyNameController = TextEditingController(text:'amzn');
 
   @override
   void dispose() {

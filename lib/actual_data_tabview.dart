@@ -4,7 +4,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class ActualDataTabView extends StatelessWidget {
+enum ChipSelection { closing, opening, adjacentClosing, high, low, volume }
+
+class ActualDataTabView extends StatefulWidget {
   const ActualDataTabView({
     super.key,
     required this.company,
@@ -14,13 +16,41 @@ class ActualDataTabView extends StatelessWidget {
   final Company company;
   final bool showChart;
 
+  @override
+  State<ActualDataTabView> createState() => _ActualDataTabViewState();
+}
+
+class _ActualDataTabViewState extends State<ActualDataTabView> {
+  double getY(CompanyData data) {
+    late double y;
+
+    if (selection == ChipSelection.adjacentClosing) {
+      y = data.adjClose;
+    } else if (selection == ChipSelection.closing) {
+      y = data.close;
+    } else if (selection == ChipSelection.opening) {
+      y = data.open;
+    } else if (selection == ChipSelection.high) {
+      y = data.high;
+    } else if (selection == ChipSelection.low) {
+      y = data.low;
+    } else if (selection == ChipSelection.volume) {
+      y = data.volume.toDouble();
+    }
+
+    return y;
+  }
+
   LineChartBarData _lineBarData() {
     return LineChartBarData(
       spots: List<FlSpot>.generate(
-        company.data.length,
+        widget.company.data.length,
         (index) {
-          int x = company.data[index].date.millisecondsSinceEpoch;
-          return FlSpot(x.toDouble(), company.data[index].close);
+          CompanyData data = widget.company.data[index];
+          int x = data.date.millisecondsSinceEpoch;
+          double y = getY(data);
+
+          return FlSpot(x.toDouble(), y);
         },
       ),
       gradient: LinearGradient(
@@ -111,9 +141,11 @@ class ActualDataTabView extends StatelessWidget {
     );
   }
 
+  ChipSelection selection = ChipSelection.closing;
+
   @override
   Widget build(BuildContext context) {
-    return showChart == true
+    return widget.showChart == true
         ? Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -140,15 +172,45 @@ class ActualDataTabView extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Wrap(
+                Wrap(
                   spacing: 8.0,
                   children: [
-                    ChoiceChip(label: Text('Open'), selected: false),
-                    ChoiceChip(label: Text('Close'), selected: true),
-                    ChoiceChip(label: Text('Adjacent Close'), selected: false),
-                    ChoiceChip(label: Text('High'), selected: false),
-                    ChoiceChip(label: Text('Low'), selected: false),
-                    ChoiceChip(label: Text('Volume'), selected: false),
+                    ChoiceChip(
+                        onSelected: (value) => setState(() {
+                              selection = ChipSelection.opening;
+                            }),
+                        label: const Text('Open'),
+                        selected: selection == ChipSelection.opening),
+                    ChoiceChip(
+                        onSelected: (value) => setState(() {
+                              selection = ChipSelection.closing;
+                            }),
+                        label: const Text('Close'),
+                        selected: selection == ChipSelection.closing),
+                    ChoiceChip(
+                        onSelected: (value) => setState(() {
+                              selection = ChipSelection.adjacentClosing;
+                            }),
+                        label: const Text('Adjacent Close'),
+                        selected: selection == ChipSelection.adjacentClosing),
+                    ChoiceChip(
+                        onSelected: (value) => setState(() {
+                              selection = ChipSelection.high;
+                            }),
+                        label: const Text('High'),
+                        selected: selection == ChipSelection.high),
+                    ChoiceChip(
+                        onSelected: (value) => setState(() {
+                              selection = ChipSelection.low;
+                            }),
+                        label: const Text('Low'),
+                        selected: selection == ChipSelection.low),
+                    ChoiceChip(
+                        onSelected: (value) => setState(() {
+                              selection = ChipSelection.volume;
+                            }),
+                        label: const Text('Volume'),
+                        selected: selection == ChipSelection.volume),
                   ],
                 ),
               ],
@@ -157,9 +219,9 @@ class ActualDataTabView extends StatelessWidget {
         : Scrollbar(
             interactive: true,
             child: ListView.builder(
-              itemCount: company.data.length,
+              itemCount: widget.company.data.length,
               itemBuilder: (context, index) {
-                CompanyData data = company.data[index];
+                CompanyData data = widget.company.data[index];
                 return CompanyDataTile(
                   adjClose: data.adjClose,
                   close: data.close,
