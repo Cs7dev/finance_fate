@@ -5,6 +5,7 @@ import 'package:finance_fate/pod/company.dart';
 import 'package:finance_fate/provider/company_provider.dart';
 import 'package:finance_fate/stock.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -51,24 +52,51 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Consumer<CompanyList>(
-          builder: (context, companies, child) => Column(
-            children: List.generate(
-              companies.length(),
-              (index) => ListTile(
-                title: Text(companies.companyList[index].ticker),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PredictionPage(
-                        companyTicker: companies.companyList[index].ticker),
+      body: Consumer<CompanyList>(
+        builder: (context, companies, child) => companies.isEmpty()
+            ? LayoutBuilder(
+                builder: (context, constraints) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  // mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height:
+                          (constraints.maxHeight - constraints.minHeight) * 0.2,
+                    ),
+                    SvgPicture.asset(
+                      'assets/images/undraw_stock_prices_re_js33.svg',
+                      height: 200,
+                    ),
+                    const SizedBox(height: 40, width: 40),
+                    const Column(
+                      children: [
+                        Center(child: Text('No companies added')),
+                        Center(
+                          child: Text('Click on "Add company" to get started'),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              )
+            : SingleChildScrollView(
+                child: Column(
+                  children: List.generate(
+                    companies.length(),
+                    (index) => ListTile(
+                      title: Text(companies.companyList[index].ticker),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PredictionPage(
+                              companyTicker:
+                                  companies.companyList[index].ticker),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ),
       ),
     );
   }

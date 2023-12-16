@@ -20,6 +20,7 @@ class FinanceFate extends StatelessWidget {
           brightness: Brightness.dark,
           useMaterial3: true,
           primarySwatch: Colors.blue,
+          fontFamily: 'Overpass',
         ),
         home: const HomePage(),
       ),
