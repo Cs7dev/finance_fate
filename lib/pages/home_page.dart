@@ -1,4 +1,3 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:finance_fate/pages/stock_input_dialog.dart';
 import 'package:finance_fate/pages/prediction.dart';
 import 'package:finance_fate/pod/company.dart';
@@ -101,18 +100,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  selectCsvFile() async {
-    FilePickerResult? marketValueFilePath = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
-      allowedExtensions: ['csv'],
-      type: FileType.custom,
-    );
+  // selectCsvFile() async {
+  //   FilePickerResult? marketValueFilePath = await FilePicker.platform.pickFiles(
+  //     allowMultiple: false,
+  //     allowedExtensions: ['csv'],
+  //     type: FileType.custom,
+  //   );
 
-    if (marketValueFilePath == null) {
-      return;
-    }
+  //   if (marketValueFilePath == null) {
+  //     return;
+  //   }
 
-    // File marketValueFile = File(marketValueFilePath.files.first.path!);
-    // print(await markveValueFile.readAsLines());
-  }
+  // File marketValueFile = File(marketValueFilePath.files.first.path!);
+  // print(await markveValueFile.readAsLines());
+  // }
 }
