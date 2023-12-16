@@ -58,68 +58,68 @@ class _PredictionPageState extends State<PredictionPage>
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.companyTicker),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: tabs,
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.companyTicker),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: tabs,
         ),
-        floatingActionButton: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            //Todo: Consider getting rid of the search functionality
+      ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          //Todo: Consider getting rid of the search functionality
 
-            if (_tabIndex == 0) ...{
-              ToggleChartFloatingButton(
-                showChart: showPredictionChart,
-                onPressed: () => togglePredictionChart(),
-              ),
-              const SizedBox(
-                width: 16,
-                height: 16,
-              ),
-              FloatingActionButton(
-                onPressed: null,
-                heroTag: UniqueKey(),
-                child: const Icon(Icons.search),
-              )
-            } else if (_tabIndex == 1) ...{
-              ToggleChartFloatingButton(
-                showChart: showActualChart,
-                onPressed: () => toggleActualChart(),
-              ),
-              const SizedBox(
-                width: 16,
-                height: 16,
-              ),
-              FloatingActionButton(
-                onPressed: null,
-                heroTag: UniqueKey(),
-                child: const Icon(Icons.search),
-              )
-            }
-          ],
-        ),
-        body: Consumer<CompanyList>(
-          builder: (context, companyList, child) {
-            Company company =
-                companyList.findCompanyFromTicker(widget.companyTicker)!;
-            return TabBarView(
-              controller: _tabController,
-              children: [
-                const Placeholder(),
-                ActualDataTabView(
+          if (_tabIndex == 0) ...{
+            ToggleChartFloatingButton(
+              showChart: showPredictionChart,
+              onPressed: () => togglePredictionChart(),
+            ),
+            const SizedBox(
+              width: 16,
+              height: 16,
+            ),
+            FloatingActionButton(
+              onPressed: null,
+              heroTag: UniqueKey(),
+              child: const Icon(Icons.search),
+            )
+          } else if (_tabIndex == 1) ...{
+            ToggleChartFloatingButton(
+              showChart: showActualChart,
+              onPressed: () => toggleActualChart(),
+            ),
+            const SizedBox(
+              width: 16,
+              height: 16,
+            ),
+            FloatingActionButton(
+              onPressed: null,
+              heroTag: UniqueKey(),
+              child: const Icon(Icons.search),
+            )
+          }
+        ],
+      ),
+      body: Consumer<CompanyList>(
+        builder: (context, companyList, child) {
+          Company company =
+              companyList.findCompanyFromTicker(widget.companyTicker)!;
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              const Placeholder(),
+              AspectRatio(
+                aspectRatio: 2,
+                child: ActualDataTabView(
                   company: company,
                   showChart: showActualChart,
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

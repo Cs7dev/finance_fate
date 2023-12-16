@@ -125,6 +125,7 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
   AxisTitles _bottomTitles() {
     return AxisTitles(
       sideTitles: SideTitles(
+        reservedSize: 20,
         showTitles: true,
         getTitlesWidget: (value, meta) {
           final DateTime date =
@@ -135,8 +136,17 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
             fontSize: 14,
           );
 
+          DateFormat dateFormatter = DateFormat.MMM();
+
+          if (dateRangeSelection == DateRangeSelection.fiveDays ||
+              dateRangeSelection == DateRangeSelection.oneMonth) {
+            dateFormatter = DateFormat('dd MMM');
+          } else if (dateRangeSelection == DateRangeSelection.threeMonths) {
+            ;
+          }
+
           return Text(
-            DateFormat.MMM().format(date),
+            dateFormatter.format(date),
             style: style,
           );
         },
@@ -162,7 +172,7 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
           ),
         );
       },
-      reservedSize: 28,
+      reservedSize: 40,
       // margin: 12,
       // interval: _leftTitlesInterval,
     ));
@@ -204,110 +214,115 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
     return widget.showChart == true
         ? Padding(
             padding: const EdgeInsets.all(12),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 2,
-                  width: MediaQuery.of(context).size.width - 20,
-                  child: LineChart(
-                    LineChartData(
-                      gridData: _gridData(),
-                      titlesData: FlTitlesData(
-                        bottomTitles: _bottomTitles(),
-                        leftTitles: _leftTitles(),
-                        topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height / 2,
+                    width: MediaQuery.of(context).size.width - 20,
+                    child: LineChart(
+                      LineChartData(
+                        gridData: _gridData(),
+                        titlesData: FlTitlesData(
+                          bottomTitles: _bottomTitles(),
+                          leftTitles: _leftTitles(),
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                         ),
-                        rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
+                        lineBarsData: [_lineBarData()],
                       ),
-                      lineBarsData: [_lineBarData()],
                     ),
                   ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8.0, top: 8.0),
-                  child: Text('Stock pricing'),
-                ),
-                Wrap(
-                  spacing: 8.0,
-                  children: [
-                    ChoiceChip(
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8.0, top: 8.0),
+                    child: Text('Stock pricing'),
+                  ),
+                  Wrap(
+                    spacing: 8.0,
+                    children: [
+                      ChoiceChip(
+                          onSelected: (value) =>
+                              setPricingSelection(PricingSelection.opening),
+                          label: const Text('Open'),
+                          selected:
+                              pricingSelection == PricingSelection.opening),
+                      ChoiceChip(
+                          onSelected: (value) =>
+                              setPricingSelection(PricingSelection.closing),
+                          label: const Text('Close'),
+                          selected:
+                              pricingSelection == PricingSelection.closing),
+                      ChoiceChip(
+                          onSelected: (value) => setPricingSelection(
+                              PricingSelection.adjacentClosing),
+                          label: const Text('Adjacent Close'),
+                          selected: pricingSelection ==
+                              PricingSelection.adjacentClosing),
+                      ChoiceChip(
+                          onSelected: (value) =>
+                              setPricingSelection(PricingSelection.high),
+                          label: const Text('High'),
+                          selected: pricingSelection == PricingSelection.high),
+                      ChoiceChip(
+                          onSelected: (value) =>
+                              setPricingSelection(PricingSelection.low),
+                          label: const Text('Low'),
+                          selected: pricingSelection == PricingSelection.low),
+                      ChoiceChip(
+                          onSelected: (value) =>
+                              setPricingSelection(PricingSelection.volume),
+                          label: const Text('Volume'),
+                          selected:
+                              pricingSelection == PricingSelection.volume),
+                    ],
+                  ),
+                  const Divider(),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8.0, top: 4.0),
+                    child: Text("Date range"),
+                  ),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      ChoiceChip(
+                        label: const Text("5 days"),
+                        selected:
+                            dateRangeSelection == DateRangeSelection.fiveDays,
                         onSelected: (value) =>
-                            setPricingSelection(PricingSelection.opening),
-                        label: const Text('Open'),
-                        selected: pricingSelection == PricingSelection.opening),
-                    ChoiceChip(
+                            setDateRangeSelection(DateRangeSelection.fiveDays),
+                      ),
+                      ChoiceChip(
+                        label: const Text("1 Month"),
+                        selected:
+                            dateRangeSelection == DateRangeSelection.oneMonth,
                         onSelected: (value) =>
-                            setPricingSelection(PricingSelection.closing),
-                        label: const Text('Close'),
-                        selected: pricingSelection == PricingSelection.closing),
-                    ChoiceChip(
-                        onSelected: (value) => setPricingSelection(
-                            PricingSelection.adjacentClosing),
-                        label: const Text('Adjacent Close'),
-                        selected: pricingSelection ==
-                            PricingSelection.adjacentClosing),
-                    ChoiceChip(
+                            setDateRangeSelection(DateRangeSelection.oneMonth),
+                      ),
+                      ChoiceChip(
+                        label: const Text("3 Month"),
+                        selected: dateRangeSelection ==
+                            DateRangeSelection.threeMonths,
+                        onSelected: (value) => setDateRangeSelection(
+                            DateRangeSelection.threeMonths),
+                      ),
+                      ChoiceChip(
+                        label: const Text("1 Year"),
+                        selected:
+                            dateRangeSelection == DateRangeSelection.oneYear,
                         onSelected: (value) =>
-                            setPricingSelection(PricingSelection.high),
-                        label: const Text('High'),
-                        selected: pricingSelection == PricingSelection.high),
-                    ChoiceChip(
-                        onSelected: (value) =>
-                            setPricingSelection(PricingSelection.low),
-                        label: const Text('Low'),
-                        selected: pricingSelection == PricingSelection.low),
-                    ChoiceChip(
-                        onSelected: (value) =>
-                            setPricingSelection(PricingSelection.volume),
-                        label: const Text('Volume'),
-                        selected: pricingSelection == PricingSelection.volume),
-                  ],
-                ),
-                const Divider(),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8.0, top: 4.0),
-                  child: Text("Date range"),
-                ),
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    ChoiceChip(
-                      label: const Text("5 days"),
-                      selected:
-                          dateRangeSelection == DateRangeSelection.fiveDays,
-                      onSelected: (value) =>
-                          setDateRangeSelection(DateRangeSelection.fiveDays),
-                    ),
-                    ChoiceChip(
-                      label: const Text("1 Month"),
-                      selected:
-                          dateRangeSelection == DateRangeSelection.oneMonth,
-                      onSelected: (value) =>
-                          setDateRangeSelection(DateRangeSelection.oneMonth),
-                    ),
-                    ChoiceChip(
-                      label: const Text("3 Month"),
-                      selected:
-                          dateRangeSelection == DateRangeSelection.threeMonths,
-                      onSelected: (value) =>
-                          setDateRangeSelection(DateRangeSelection.threeMonths),
-                    ),
-                    ChoiceChip(
-                      label: const Text("1 Year"),
-                      selected:
-                          dateRangeSelection == DateRangeSelection.oneYear,
-                      onSelected: (value) =>
-                          setDateRangeSelection(DateRangeSelection.oneYear),
-                    ),
-                  ],
-                ),
-              ],
+                            setDateRangeSelection(DateRangeSelection.oneYear),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           )
         : Scrollbar(
