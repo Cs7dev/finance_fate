@@ -17,8 +17,8 @@ class _PredictionPageState extends State<PredictionPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late int _tabIndex;
-  bool displayActualChart = true;
-  bool displayPredictionChart = true;
+  bool showActualChart = true;
+  bool showPredictionChart = true;
 
   final List<Widget> tabs = const [
     Tab(child: Text('Predictions')),
@@ -46,13 +46,13 @@ class _PredictionPageState extends State<PredictionPage>
 
   void toggleActualChart() {
     setState(() {
-      displayActualChart = !displayActualChart;
+      showActualChart = !showActualChart;
     });
   }
 
   void togglePredictionChart() {
     setState(() {
-      displayPredictionChart = !displayPredictionChart;
+      showPredictionChart = !showPredictionChart;
     });
   }
 
@@ -71,13 +71,12 @@ class _PredictionPageState extends State<PredictionPage>
         floatingActionButton: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            //Todo: Consider getting rid of the search functionality
+
             if (_tabIndex == 0) ...{
-              FloatingActionButton.small(
-                onPressed: togglePredictionChart,
-                heroTag: UniqueKey(),
-                child: const Icon(
-                  Icons.show_chart_rounded,
-                ),
+              ToggleChartFloatingButton(
+                showChart: showPredictionChart,
+                onPressed: () => togglePredictionChart(),
               ),
               const SizedBox(
                 width: 16,
@@ -89,12 +88,9 @@ class _PredictionPageState extends State<PredictionPage>
                 child: const Icon(Icons.search),
               )
             } else if (_tabIndex == 1) ...{
-              FloatingActionButton.small(
-                onPressed: toggleActualChart,
-                heroTag: UniqueKey(),
-                child: const Icon(
-                  Icons.show_chart_rounded,
-                ),
+              ToggleChartFloatingButton(
+                showChart: showActualChart,
+                onPressed: () => toggleActualChart(),
               ),
               const SizedBox(
                 width: 16,
@@ -112,20 +108,41 @@ class _PredictionPageState extends State<PredictionPage>
           builder: (context, companyList, child) {
             Company company =
                 companyList.findCompanyFromTicker(widget.companyTicker)!;
-            List<CompanyData> companyData = company.data;
             return TabBarView(
               controller: _tabController,
               children: [
                 const Placeholder(),
                 ActualDataTabView(
-                  companyData: companyData,
                   company: company,
-                  showChart: displayActualChart,
+                  showChart: showActualChart,
                 ),
               ],
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class ToggleChartFloatingButton extends StatelessWidget {
+  const ToggleChartFloatingButton({
+    super.key,
+    required this.showChart,
+    this.onPressed,
+  });
+
+  final bool showChart;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton.small(
+      onPressed: () => onPressed?.call(),
+      heroTag: UniqueKey(),
+      child: Icon(
+        showChart ? Icons.article_outlined : Icons.show_chart_rounded,
+        semanticLabel: 'Toggle betweeen chart view and text view',
       ),
     );
   }
