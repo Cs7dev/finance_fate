@@ -43,31 +43,6 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
     return y;
   }
 
-  LineChartBarData _lineBarData() {
-    return LineChartBarData(
-      spots: chartData(),
-      gradient: LinearGradient(
-        colors: _gradientColors,
-        stops: const [0.25, 0.5, 0.75],
-        begin: const Alignment(0.5, 0),
-        end: const Alignment(0.5, 1),
-      ),
-      barWidth: 2,
-      isStrokeCapRound: true,
-      dotData: const FlDotData(show: false),
-      belowBarData: BarAreaData(
-        show: true,
-        gradient: LinearGradient(
-          colors:
-              _gradientColors.map((color) => color.withOpacity(0.3)).toList(),
-          begin: const Alignment(0.5, 0),
-          end: const Alignment(0.5, 1),
-          stops: const [0.25, 0.5, 0.75],
-        ),
-      ),
-    );
-  }
-
   List<FlSpot> chartData() {
     List<FlSpot> data = List<FlSpot>.generate(
       widget.company.data.length,
@@ -121,79 +96,6 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
     Color(0xFF5620FF),
   ];
 
-//TodO: add proper x-axis legends according to chip selection
-  AxisTitles _bottomTitles() {
-    return AxisTitles(
-      sideTitles: SideTitles(
-        reservedSize: 20,
-        showTitles: true,
-        getTitlesWidget: (value, meta) {
-          final DateTime date =
-              DateTime.fromMillisecondsSinceEpoch(value.toInt());
-
-          const TextStyle style = TextStyle(
-            color: Colors.white54,
-            fontSize: 14,
-          );
-
-          DateFormat dateFormatter = DateFormat.MMM();
-
-          if (dateRangeSelection == DateRangeSelection.fiveDays ||
-              dateRangeSelection == DateRangeSelection.oneMonth) {
-            dateFormatter = DateFormat('dd MMM');
-          } else if (dateRangeSelection == DateRangeSelection.threeMonths) {
-            ;
-          }
-
-          return Text(
-            dateFormatter.format(date),
-            style: style,
-          );
-        },
-
-        // getTitles: (value) {},
-        // margin: 8,
-        // interval: (_maxX - _minX) / 6,
-        //
-      ),
-    );
-  }
-
-  AxisTitles _leftTitles() {
-    return AxisTitles(
-        sideTitles: SideTitles(
-      showTitles: true,
-      getTitlesWidget: (value, meta) {
-        return Text(
-          NumberFormat.compactCurrency(symbol: '\$').format(value),
-          style: const TextStyle(
-            color: Colors.white54,
-            fontSize: 14,
-          ),
-        );
-      },
-      reservedSize: 40,
-      // margin: 12,
-      // interval: _leftTitlesInterval,
-    ));
-  }
-
-  FlGridData _gridData() {
-    return FlGridData(
-      show: true,
-      drawVerticalLine: false,
-      getDrawingHorizontalLine: (value) {
-        return const FlLine(
-          color: Colors.white12,
-          strokeWidth: 1,
-        );
-      },
-      // checkToShowHorizontalLine: (value) {
-      //   return (value - _minY) % _leftTitlesInterval == 0;
-      // },
-    );
-  }
-
   PricingSelection pricingSelection = PricingSelection.closing;
   DateRangeSelection dateRangeSelection = DateRangeSelection.oneYear;
 
@@ -216,19 +118,129 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
             padding: const EdgeInsets.all(12),
             child: SingleChildScrollView(
               child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 2,
-                    width: MediaQuery.of(context).size.width - 20,
+                  const SizedBox(
+                    height: 8,
+                    width: 8,
+                  ),
+                  AspectRatio(
+                    aspectRatio: 2,
                     child: LineChart(
                       LineChartData(
-                        gridData: _gridData(),
+                        lineTouchData: LineTouchData(
+                          enabled: true,
+                          // touchCallback: (FlTouchEvent event,
+                          //     LineTouchResponse? touchResponse) {
+                          //   setState(
+                          //     () {
+                          //       if (event.isInterestedForInteractions) {
+                          //         indexTouched = touchResponse
+                          //                 ?.lineBarSpots?[0].x
+                          //                 .toInt() ??
+                          //             indexTouched;
+                          //       } else {
+                          //         indexTouched = null;
+                          //       }
+                          //     },
+                          //   );
+                          // },
+                          getTouchedSpotIndicator:
+                              (LineChartBarData barData, List<int> indicators) {
+                            return indicators.map(
+                              (int index) {
+                                const line = FlLine(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                  // dashArray: [2, 4],
+                                );
+                                return const TouchedSpotIndicatorData(
+                                  line,
+                                  FlDotData(show: false),
+                                );
+                              },
+                            ).toList();
+                          },
+                          touchTooltipData: LineTouchTooltipData(
+                            tooltipRoundedRadius: 20.0,
+                            fitInsideVertically: true,
+                            showOnTopOfTheChartBoxArea: true,
+                            fitInsideHorizontally: true,
+                            tooltipMargin: 0,
+                            getTooltipItems: (touchedSpots) {
+                              return touchedSpots.map(
+                                (LineBarSpot touchedSpot) {
+                                  CompanyData data = widget
+                                      .company.data[touchedSpot.spotIndex];
+
+                                  return LineTooltipItem(
+                                    "${DateFormat('dd MMM yyyy').format(data.date)}\n${getY(data)}",
+                                    const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.black,
+                                    ),
+                                  );
+                                },
+                              ).toList();
+                            },
+                          ),
+                        ),
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          getDrawingHorizontalLine: (value) {
+                            return const FlLine(
+                              color: Colors.white12,
+                              strokeWidth: 1,
+                            );
+                          },
+                        ),
                         titlesData: FlTitlesData(
-                          bottomTitles: _bottomTitles(),
-                          leftTitles: _leftTitles(),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              reservedSize: 20,
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                final DateTime date =
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        value.toInt());
+
+                                const TextStyle style = TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 14,
+                                );
+
+                                DateFormat dateFormatter = dateRangeSelection ==
+                                        DateRangeSelection.oneYear
+                                    ? DateFormat.MMM()
+                                    : DateFormat('dd MMM');
+
+                                return Text(
+                                  dateFormatter.format(date),
+                                  style: style,
+                                );
+                              },
+                            ),
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              reservedSize: 60,
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                return Text(
+                                  NumberFormat.compactCurrency(
+                                          symbol: '\$', decimalDigits: 0)
+                                      .format(value),
+                                  style: const TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 14,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                           topTitles: const AxisTitles(
                             sideTitles: SideTitles(showTitles: false),
                           ),
@@ -236,7 +248,31 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
                             sideTitles: SideTitles(showTitles: false),
                           ),
                         ),
-                        lineBarsData: [_lineBarData()],
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: chartData(),
+                            gradient: LinearGradient(
+                              colors: _gradientColors,
+                              stops: const [0.25, 0.5, 0.75],
+                              begin: const Alignment(0.5, 0),
+                              end: const Alignment(0.5, 1),
+                            ),
+                            barWidth: 2,
+                            isStrokeCapRound: true,
+                            dotData: const FlDotData(show: false),
+                            belowBarData: BarAreaData(
+                              show: true,
+                              gradient: LinearGradient(
+                                colors: _gradientColors
+                                    .map((color) => color.withOpacity(0.3))
+                                    .toList(),
+                                begin: const Alignment(0.5, 0),
+                                end: const Alignment(0.5, 1),
+                                stops: const [0.25, 0.5, 0.75],
+                              ),
+                            ),
+                          )
+                        ],
                       ),
                     ),
                   ),

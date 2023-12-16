@@ -110,12 +110,9 @@ class _PredictionPageState extends State<PredictionPage>
             controller: _tabController,
             children: [
               const Placeholder(),
-              AspectRatio(
-                aspectRatio: 2,
-                child: ActualDataTabView(
-                  company: company,
-                  showChart: showActualChart,
-                ),
+              ActualDataTabView(
+                company: company,
+                showChart: showActualChart,
               ),
             ],
           );
