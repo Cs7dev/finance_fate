@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:finance_fate/pages/company/widgets/header.dart';
 import 'package:finance_fate/pages/company/widgets/legend_symbol.dart';
 import 'package:finance_fate/pages/company/widgets/selection_enums.dart';
@@ -44,61 +42,13 @@ class _PredictionDataTabViewState extends State<PredictionDataTabView> {
     return y;
   }
 
-  List<FlSpot> chartData() {
+  List<FlSpot> chartData(List<CompanyData> companyData) {
     List<FlSpot> data = List<FlSpot>.generate(
-      widget.company.data.length,
+      companyData.length,
       (index) {
-        CompanyData data = widget.company.data[index];
+        CompanyData data = companyData[index];
         int x = data.date.millisecondsSinceEpoch;
         double y = getY(data);
-
-        return FlSpot(x.toDouble(), y);
-      },
-    );
-
-    if (dateRangeSelection == DateRangeSelection.oneYear) return data;
-    if (dateRangeSelection == DateRangeSelection.oneMonth) {
-      return data
-          .where((element) =>
-              DateTime.now()
-                  .difference(
-                      DateTime.fromMillisecondsSinceEpoch(element.x.toInt()))
-                  .inDays <=
-              30)
-          .toList();
-    }
-    if (dateRangeSelection == DateRangeSelection.fiveDays) {
-      return data
-          .where((element) =>
-              DateTime.now()
-                  .difference(
-                      DateTime.fromMillisecondsSinceEpoch(element.x.toInt()))
-                  .inDays <=
-              5)
-          .toList();
-    }
-    if (dateRangeSelection == DateRangeSelection.threeMonths) {
-      return data
-          .where((element) =>
-              DateTime.now()
-                  .difference(
-                      DateTime.fromMillisecondsSinceEpoch(element.x.toInt()))
-                  .inDays <=
-              30 * 3)
-          .toList();
-    }
-
-    return data;
-  }
-
-  List<FlSpot> predictionData() {
-    List<FlSpot> data = List<FlSpot>.generate(
-      widget.company.data.length,
-      (index) {
-        CompanyData data = widget.company.data[index];
-        int x = data.date.millisecondsSinceEpoch;
-        double y = getY(data) + (Random().nextInt(21) - 10);
-        y = y < 0 ? 0 : y;
 
         return FlSpot(x.toDouble(), y);
       },
@@ -200,8 +150,8 @@ class _PredictionDataTabViewState extends State<PredictionDataTabView> {
                             getTooltipItems: (touchedSpots) {
                               return touchedSpots.map(
                                 (LineBarSpot touchedSpot) {
-                                  CompanyData data = widget
-                                      .company.data[touchedSpot.spotIndex];
+                                  CompanyData data = widget.company
+                                      .actualData[touchedSpot.spotIndex];
 
                                   return LineTooltipItem(
                                     "${DateFormat('dd MMM yyyy').format(data.date)}\n${getY(data)}",
@@ -278,14 +228,14 @@ class _PredictionDataTabViewState extends State<PredictionDataTabView> {
                         ),
                         lineBarsData: [
                           LineChartBarData(
-                            spots: chartData(),
+                            spots: chartData(widget.company.actualData),
                             color: Colors.green,
                             barWidth: 2,
                             isStrokeCapRound: true,
                             dotData: const FlDotData(show: false),
                           ),
                           LineChartBarData(
-                            spots: predictionData(),
+                            spots: chartData(widget.company.predictedData!),
                             color: Colors.purple.shade400,
                             barWidth: 2,
                             isStrokeCapRound: true,
@@ -408,9 +358,9 @@ class _PredictionDataTabViewState extends State<PredictionDataTabView> {
         : Scrollbar(
             interactive: true,
             child: ListView.builder(
-              itemCount: widget.company.data.length,
+              itemCount: widget.company.actualData.length,
               itemBuilder: (context, index) {
-                CompanyData data = widget.company.data[index];
+                CompanyData data = widget.company.actualData[index];
                 return CompanyDataTile(
                   adjClose: data.adjClose,
                   close: data.close,

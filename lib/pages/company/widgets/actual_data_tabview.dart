@@ -43,9 +43,9 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
 
   List<FlSpot> chartData() {
     List<FlSpot> data = List<FlSpot>.generate(
-      widget.company.data.length,
+      widget.company.actualData.length,
       (index) {
-        CompanyData data = widget.company.data[index];
+        CompanyData data = widget.company.actualData[index];
         int x = data.date.millisecondsSinceEpoch;
         double y = getY(data);
 
@@ -155,8 +155,8 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
                             getTooltipItems: (touchedSpots) {
                               return touchedSpots.map(
                                 (LineBarSpot touchedSpot) {
-                                  CompanyData data = widget
-                                      .company.data[touchedSpot.spotIndex];
+                                  CompanyData data = widget.company
+                                      .actualData[touchedSpot.spotIndex];
 
                                   return LineTooltipItem(
                                     "${DateFormat('dd MMM yyyy').format(data.date)}\n${getY(data)}",
@@ -347,9 +347,9 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
         : Scrollbar(
             interactive: true,
             child: ListView.builder(
-              itemCount: widget.company.data.length,
+              itemCount: widget.company.actualData.length,
               itemBuilder: (context, index) {
-                CompanyData data = widget.company.data[index];
+                CompanyData data = widget.company.actualData[index];
                 return CompanyDataTile(
                   adjClose: data.adjClose,
                   close: data.close,

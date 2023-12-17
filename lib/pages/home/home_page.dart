@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:finance_fate/pages/home/widgets/stock_input_dialog.dart';
 import 'package:finance_fate/pod/company.dart';
 import 'package:finance_fate/provider/company_provider.dart';
@@ -35,6 +37,26 @@ class _HomePageState extends State<HomePage> {
 
           // If no data is returned, do nothing
           if (company == null) return;
+
+          company.predictedData = [];
+
+          for (var element in company.actualData) {
+            double adjClose = element.adjClose + (Random().nextInt(21) - 10);
+            double close = element.close + (Random().nextInt(21) - 10);
+            double open = element.open + (Random().nextInt(21) - 10);
+            double high = element.high + (Random().nextInt(21) - 10);
+            double low = element.low + (Random().nextInt(21) - 10);
+            int volume = element.volume + (Random().nextInt(21) - 10);
+
+            company.predictedData!.add(CompanyData(
+                date: element.date,
+                adjClose: adjClose,
+                close: close,
+                high: high,
+                low: low,
+                open: open,
+                volume: volume));
+          }
 
           if (mounted) {
             Provider.of<CompanyList>(context, listen: false).addUser(company);

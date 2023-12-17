@@ -43,6 +43,6 @@ class StockData {
       stockData.add(data);
     }
 
-    return Company(ticker: ticker, data: stockData);
+    return Company(ticker: ticker, actualData: stockData);
   }
 }

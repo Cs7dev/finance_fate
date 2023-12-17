@@ -1,8 +1,13 @@
 class Company {
   String ticker;
-  List<CompanyData> data;
+  List<CompanyData> actualData;
+  List<CompanyData>? predictedData;
 
-  Company({required this.ticker, this.data = const []});
+  Company({
+    required this.ticker,
+    this.actualData = const [],
+    this.predictedData,
+  });
 }
 
 class CompanyData {
