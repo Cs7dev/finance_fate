@@ -1,4 +1,4 @@
-import 'package:finance_fate/pages/stock_input_dialog.dart';
+import 'package:finance_fate/pages/home/widgets/stock_input_dialog.dart';
 import 'package:finance_fate/pod/company.dart';
 import 'package:finance_fate/provider/company_provider.dart';
 import 'package:finance_fate/reorderable_list_view.dart';

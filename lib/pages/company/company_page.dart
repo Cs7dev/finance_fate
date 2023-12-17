@@ -1,4 +1,5 @@
 import 'package:finance_fate/pages/company/widgets/actual_data_tabview.dart';
+import 'package:finance_fate/pages/company/widgets/prediction_data_tabview.dart';
 import 'package:finance_fate/pod/company.dart';
 import 'package:finance_fate/provider/company_provider.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +110,10 @@ class _PredictionPageState extends State<PredictionPage>
           return TabBarView(
             controller: _tabController,
             children: [
-              const Placeholder(),
+              PredictionDataTabView(
+                company: company,
+                showChart: showPredictionChart,
+              ),
               ActualDataTabView(
                 company: company,
                 showChart: showActualChart,

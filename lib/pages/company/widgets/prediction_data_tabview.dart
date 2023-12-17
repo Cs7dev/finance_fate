@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:finance_fate/pages/company/widgets/header.dart';
+import 'package:finance_fate/pages/company/widgets/legend_symbol.dart';
 import 'package:finance_fate/pages/company/widgets/selection_enums.dart';
 import 'package:finance_fate/pages/home/widgets/company_data_tile.dart';
 import 'package:finance_fate/pod/company.dart';
@@ -6,8 +9,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class ActualDataTabView extends StatefulWidget {
-  const ActualDataTabView({
+class PredictionDataTabView extends StatefulWidget {
+  const PredictionDataTabView({
     super.key,
     required this.company,
     required this.showChart,
@@ -17,10 +20,10 @@ class ActualDataTabView extends StatefulWidget {
   final bool showChart;
 
   @override
-  State<ActualDataTabView> createState() => _ActualDataTabViewState();
+  State<PredictionDataTabView> createState() => _PredictionDataTabViewState();
 }
 
-class _ActualDataTabViewState extends State<ActualDataTabView> {
+class _PredictionDataTabViewState extends State<PredictionDataTabView> {
   double getY(CompanyData data) {
     late double y;
 
@@ -88,11 +91,53 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
     return data;
   }
 
-  final List<Color> _gradientColors = const [
-    Color(0xFF6FFF7C),
-    Color(0xFF0087FF),
-    Color(0xFF5620FF),
-  ];
+  List<FlSpot> predictionData() {
+    List<FlSpot> data = List<FlSpot>.generate(
+      widget.company.data.length,
+      (index) {
+        CompanyData data = widget.company.data[index];
+        int x = data.date.millisecondsSinceEpoch;
+        double y = getY(data) + (Random().nextInt(21) - 10);
+        y = y < 0 ? 0 : y;
+
+        return FlSpot(x.toDouble(), y);
+      },
+    );
+
+    if (dateRangeSelection == DateRangeSelection.oneYear) return data;
+    if (dateRangeSelection == DateRangeSelection.oneMonth) {
+      return data
+          .where((element) =>
+              DateTime.now()
+                  .difference(
+                      DateTime.fromMillisecondsSinceEpoch(element.x.toInt()))
+                  .inDays <=
+              30)
+          .toList();
+    }
+    if (dateRangeSelection == DateRangeSelection.fiveDays) {
+      return data
+          .where((element) =>
+              DateTime.now()
+                  .difference(
+                      DateTime.fromMillisecondsSinceEpoch(element.x.toInt()))
+                  .inDays <=
+              5)
+          .toList();
+    }
+    if (dateRangeSelection == DateRangeSelection.threeMonths) {
+      return data
+          .where((element) =>
+              DateTime.now()
+                  .difference(
+                      DateTime.fromMillisecondsSinceEpoch(element.x.toInt()))
+                  .inDays <=
+              30 * 3)
+          .toList();
+    }
+
+    return data;
+  }
 
   PricingSelection pricingSelection = PricingSelection.closing;
   DateRangeSelection dateRangeSelection = DateRangeSelection.oneYear;
@@ -234,33 +279,49 @@ class _ActualDataTabViewState extends State<ActualDataTabView> {
                         lineBarsData: [
                           LineChartBarData(
                             spots: chartData(),
-                            gradient: LinearGradient(
-                              colors: _gradientColors,
-                              stops: const [0.25, 0.5, 0.75],
-                              begin: const Alignment(0.5, 0),
-                              end: const Alignment(0.5, 1),
-                            ),
+                            color: Colors.green,
                             barWidth: 2,
                             isStrokeCapRound: true,
                             dotData: const FlDotData(show: false),
-                            belowBarData: BarAreaData(
-                              show: true,
-                              gradient: LinearGradient(
-                                colors: _gradientColors
-                                    .map((color) => color.withOpacity(0.3))
-                                    .toList(),
-                                begin: const Alignment(0.5, 0),
-                                end: const Alignment(0.5, 1),
-                                stops: const [0.25, 0.5, 0.75],
-                              ),
-                            ),
+                          ),
+                          LineChartBarData(
+                            spots: predictionData(),
+                            color: Colors.purple.shade400,
+                            barWidth: 2,
+                            isStrokeCapRound: true,
+                            dotData: const FlDotData(show: false),
                           )
                         ],
                       ),
                     ),
                   ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16, width: 16),
+                      const SectionHeader(header: 'Legend'),
+                      const SizedBox(height: 12, width: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const LegendSymbol(
+                            legendLabel: 'Actual data',
+                            legendColor: Colors.green,
+                          ),
+                          const SizedBox(width: 40),
+                          LegendSymbol(
+                            legendLabel: 'Predicted data',
+                            legendColor: Colors.purple.shade400,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Divider(),
                   const Padding(
-                    padding: EdgeInsets.only(bottom: 8.0, top: 24.0),
+                    padding: EdgeInsets.only(bottom: 8.0, top: 8.0),
                     child: SectionHeader(header: 'Stock pricing'),
                   ),
                   Wrap(
