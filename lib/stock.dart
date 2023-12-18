@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:finance_fate/pod/company.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
 
@@ -44,5 +46,27 @@ class StockData {
     }
 
     return Company(ticker: ticker, actualData: stockData);
+  }
+
+  void predictData(Company company) {
+    company.predictedData = [];
+
+    for (var element in company.actualData) {
+      double adjClose = element.adjClose + (Random().nextInt(21) - 10);
+      double close = element.close + (Random().nextInt(21) - 10);
+      double open = element.open + (Random().nextInt(21) - 10);
+      double high = element.high + (Random().nextInt(21) - 10);
+      double low = element.low + (Random().nextInt(21) - 10);
+      int volume = element.volume + (Random().nextInt(21) - 10);
+
+      company.predictedData!.add(CompanyData(
+          date: element.date,
+          adjClose: adjClose,
+          close: close,
+          high: high,
+          low: low,
+          open: open,
+          volume: volume));
+    }
   }
 }
