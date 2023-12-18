@@ -1,20 +1,29 @@
-import 'dart:io';
+import 'package:finance_fate/provider/company_provider.dart';
+import 'package:finance_fate/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
-import 'login_page.dart'; // Import your login page file
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(MyApp());
+Future<void> main() async {
+  runApp(const FinanceFate());
 }
 
-class MyApp extends StatelessWidget {
+class FinanceFate extends StatelessWidget {
+  const FinanceFate({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Stock App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return ChangeNotifierProvider(
+      create: (context) => CompanyList(),
+      builder: (context, child) => MaterialApp(
+        title: 'Stock App',
+        theme: ThemeData(
+          brightness: Brightness.dark,
+          useMaterial3: true,
+          primarySwatch: Colors.blue,
+          fontFamily: 'Overpass',
+        ),
+        home: const HomePage(),
       ),
-      home: LoginPage(), // Set the initial page to Login Page
     );
   }
 }

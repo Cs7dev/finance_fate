@@ -1,9 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.finance_fate">
+   <uses-permission android:name="android.permission.INTERNET" />
+   <uses-permission android:name="android.permission.VIBRATE"/>
    <application
-        android:label="finance_fate"
+        android:label="Finance Fate"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/finance_fate_goldmulti_black">
         <activity
             android:name=".MainActivity"
             android:exported="true"
