@@ -1,7 +1,10 @@
+// ignore_for_file: unused_import
+
 import 'dart:math';
 
 import 'package:finance_fate/pod/company.dart';
 import 'package:yahoo_finance_data_reader/yahoo_finance_data_reader.dart';
+import 'package:http/http.dart' as http;
 
 class StockData {
   Future<YahooFinanceResponse?> apiData(
